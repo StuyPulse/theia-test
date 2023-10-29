@@ -18,22 +18,11 @@ public interface Field {
     public static final double FIDUCIAL_SIZE = 0.15558;
 
     Fiducial TAGS[] = {
-        new Fiducial(
-                0,
-                new Pose3d(
-                        new Translation3d(0, 4, 0),
-                        new Rotation3d(
-                                Units.degreesToRadians(0),
-                                Units.degreesToRadians(0),
-                                Units.degreesToRadians(180)))),
-        new Fiducial(
-                1,
-                new Pose3d(
-                        new Translation3d(1, 4, 0),
-                        new Rotation3d(
-                                Units.degreesToRadians(0),
-                                Units.degreesToRadians(0),
-                                Units.degreesToRadians(180)))),
+        new Fiducial(0,new Pose3d(new Translation3d(0, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
+        new Fiducial(1,new Pose3d(new Translation3d(1, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
+        new Fiducial(2,new Pose3d(new Translation3d(2, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
+        new Fiducial(3,new Pose3d(new Translation3d(3, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
+        new Fiducial(4,new Pose3d(new Translation3d(4, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
     };
 
     public static boolean isValidTag(int id) {
@@ -42,9 +31,9 @@ public interface Field {
         return false;
     }
 
-    public static Pose3d getTag(int id) {
+    public static Fiducial getTag(int id) {
         for (Fiducial tag : TAGS)
-            if (tag.getID() == id) return tag.getPose();
+            if (tag.getID() == id) return tag;
         return null;
     }
 
@@ -66,8 +55,26 @@ public interface Field {
     }
 
     // XY Standard Deviation vs Distance
-    Translation2d[] xyStdDevs = new Translation2d[] {};
+    Translation2d[] xyStdDevs = new Translation2d[] {
+        new Translation2d(1, 1),
+        new Translation2d(2, 2),
+        new Translation2d(3, 3),
+        new Translation2d(4, 4),
+        new Translation2d(5, 5),
+        new Translation2d(6, 6),
+        new Translation2d(7, 7),
+        new Translation2d(8, 8),
+    };
 
     // Theta Standard Deviation vs Distance
-    Translation2d[] thetaStdDevs = new Translation2d[] {};
+    Translation2d[] thetaStdDevs = new Translation2d[] {
+        new Translation2d(1, 1),
+        new Translation2d(2, 2),
+        new Translation2d(3, 3),
+        new Translation2d(4, 4),
+        new Translation2d(5, 5),
+        new Translation2d(6, 6),
+        new Translation2d(7, 7),
+        new Translation2d(8, 8),
+    };
 }

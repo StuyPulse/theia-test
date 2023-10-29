@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.IntegerArraySubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -32,10 +33,14 @@ public class CustomCamera {
 
     private final DoubleArraySubscriber robotPoseSub;
     private final IntegerSubscriber fpsSub;
+    private final DoubleArraySubscriber tvecsSub;
+    private final IntegerArraySubscriber idSub;
 
     private final Pose3d cameraPose;
 
-    private double[] rawData;
+    private double[] rawPoseData;
+    private double[] rawTvecsData;
+    private long[] rawIdData;
 
     public CustomCamera(String cameraName, Pose3d cameraPose) {
 
@@ -45,34 +50,31 @@ public class CustomCamera {
 
         NetworkTable configTable = table.getSubTable("config");
         configTable.getIntegerTopic("camera_id").publish().set(camera_id);
-        configTable
-                .getIntegerTopic("camera_resolution_width")
-                .publish()
-                .set(camera_resolution_width);
-        configTable
-                .getIntegerTopic("camera_resolution_height")
-                .publish()
-                .set(camera_resolution_height);
+        configTable.getIntegerTopic("camera_resolution_width").publish().set(camera_resolution_width);
+        configTable.getIntegerTopic("camera_resolution_height").publish().set(camera_resolution_height);
         configTable.getIntegerTopic("camera_auto_exposure").publish().set(camera_auto_exposure);
         configTable.getIntegerTopic("camera_exposure").publish().set(camera_exposure);
         configTable.getDoubleTopic("camera_gain").publish().set(camera_gain);
         configTable.getDoubleTopic("camera_brightness").publish().set(camera_brightness);
         configTable.getDoubleTopic("fiducial_size").publish().set(Field.FIDUCIAL_SIZE);
-        configTable
-                .getDoubleArrayTopic("fiducial_layout")
-                .publish()
-                .set(Field.getTagLayout(Field.TAGS));
+        configTable.getDoubleArrayTopic("fiducial_layout").publish().set(Field.getTagLayout(Field.TAGS));
 
-        var outputTable = table.getSubTable("output");
-        robotPoseSub =
-                outputTable
-                        .getDoubleArrayTopic("robot_pose")
-                        .subscribe(
-                                new double[] {},
-                                PubSubOption.keepDuplicates(true),
-                                PubSubOption.sendAll(true));
-
+        NetworkTable outputTable = table.getSubTable("output");
+        robotPoseSub = outputTable.getDoubleArrayTopic("robot_pose")
+            .subscribe(
+                new double[] {},
+                PubSubOption.keepDuplicates(true),
+                PubSubOption.sendAll(true));
+        
         fpsSub = outputTable.getIntegerTopic("fps").subscribe(0);
+
+        tvecsSub = outputTable.getDoubleArrayTopic("tvecs")
+            .subscribe(
+                new double[] {},
+                PubSubOption.keepDuplicates(true),
+                PubSubOption.sendAll(true));
+
+        idSub = outputTable.getIntegerArrayTopic("ids").subscribe(new long[] {});
 
         this.cameraPose = cameraPose;
     }
@@ -82,28 +84,37 @@ public class CustomCamera {
     }
 
     public void updateData() {
-        rawData = robotPoseSub.get();
+        rawPoseData = robotPoseSub.get();
+        rawTvecsData = tvecsSub.get();
+        rawIdData = idSub.get();
     }
 
     public boolean hasData() {
-        return rawData.length > 0;
+        return rawPoseData.length > 0;
     }
 
     private Pose3d getRobotPose() {
         return new Pose3d(
-                new Translation3d(rawData[0], rawData[1], rawData[2]),
+                new Translation3d(rawPoseData[0], rawPoseData[1], rawPoseData[2]),
                 new Rotation3d(
-                        Units.degreesToRadians(rawData[3]),
-                        Units.degreesToRadians(rawData[4]),
-                        Units.degreesToRadians(rawData[5])));
+                        Units.degreesToRadians(rawPoseData[3]),
+                        Units.degreesToRadians(rawPoseData[4]),
+                        Units.degreesToRadians(rawPoseData[5])));
+    }
+    
+    private Translation3d[] getTvecs() {
+        Translation3d[] tvecs = new Translation3d[rawTvecsData.length / 3];
+        for (int i = 0; i < rawTvecsData.length; i += 3)
+            tvecs[i / 3] = new Translation3d(rawTvecsData[i], rawTvecsData[i + 1], rawTvecsData[i + 2]);
+        return tvecs;
     }
 
     private double getLatency() {
-        return Units.millisecondsToSeconds(rawData[6]);
+        return Units.millisecondsToSeconds(rawPoseData[6]);
     }
 
     public VisionData getVisionData() {
-        return new VisionData(cameraPose, getRobotPose(), getLatency());
+        return new VisionData(rawIdData, getTvecs(), cameraPose, getRobotPose(), getLatency());
     }
 
     public long getFPS() {

@@ -8,6 +8,7 @@ package com.stuypulse.robot.subsystems.odometry;
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.SwerveDrive;
 import com.stuypulse.robot.subsystems.vision.AbstractVision;
+import com.stuypulse.robot.util.Fiducial;
 import com.stuypulse.robot.util.LinearRegression;
 import com.stuypulse.robot.util.VisionData;
 
@@ -91,20 +92,26 @@ public class Odometry extends AbstractOdometry {
 
     private Vector<N3> getStdDevs(double distance) {
         double xyStdDev = xyRegression.calculatePoint(distance);
+        double thetaStdDev = thetaRegression.calculatePoint(distance);
+
+        SmartDashboard.putNumber("Odometry/StdDevs/XY", xyStdDev);
+        SmartDashboard.putNumber("Odometry/StdDevs/Theta", thetaStdDev);
+
         return VecBuilder.fill(
                 xyStdDev,
                 xyStdDev,
-                thetaRegression.calculatePoint(distance));
+                thetaStdDev);
     }
 
     private void updateWithVision(List<VisionData> visionData) {
         for (VisionData result : visionData) {
-            // TODO: Make camera output tag ID
-            double distance = result.calculateDistanceToTag(null);
+            Fiducial primaryTag = result.getPrimaryTag();
+            double distance = result.calculateDistanceToTag(primaryTag);
+
             estimator.addVisionMeasurement(
-                    result.robotPose.toPose2d(),
-                    Timer.getFPGATimestamp() - result.latency,
-                    getStdDevs(distance));
+                result.robotPose.toPose2d(), 
+                Timer.getFPGATimestamp() - result.latency, 
+                getStdDevs(distance));
         }
     }
 
@@ -121,19 +128,12 @@ public class Odometry extends AbstractOdometry {
         odometryPose2D.setPose(odometry.getPoseMeters());
         estimatorPose2D.setPose(estimator.getEstimatedPosition());
 
-        SmartDashboard.putNumber(
-                "Odometry/Odometry/X", odometry.getPoseMeters().getTranslation().getX());
-        SmartDashboard.putNumber(
-                "Odometry/Odometry/Y", odometry.getPoseMeters().getTranslation().getY());
-        SmartDashboard.putNumber(
-                "Odometry/Odometry/Rotation", odometry.getPoseMeters().getRotation().getDegrees());
+        SmartDashboard.putNumber("Odometry/Odometry/X", odometry.getPoseMeters().getTranslation().getX());
+        SmartDashboard.putNumber("Odometry/Odometry/Y", odometry.getPoseMeters().getTranslation().getY());
+        SmartDashboard.putNumber("Odometry/Odometry/Rotation", odometry.getPoseMeters().getRotation().getDegrees());
 
-        SmartDashboard.putNumber(
-                "Odometry/Estimator/X", estimator.getEstimatedPosition().getTranslation().getX());
-        SmartDashboard.putNumber(
-                "Odometry/Estimator/Y", estimator.getEstimatedPosition().getTranslation().getY());
-        SmartDashboard.putNumber(
-                "Odometry/Estimator/Rotation",
-                estimator.getEstimatedPosition().getRotation().getDegrees());
+        SmartDashboard.putNumber("Odometry/Estimator/X", estimator.getEstimatedPosition().getTranslation().getX());
+        SmartDashboard.putNumber("Odometry/Estimator/Y", estimator.getEstimatedPosition().getTranslation().getY());
+        SmartDashboard.putNumber("Odometry/Estimator/Rotation", estimator.getEstimatedPosition().getRotation().getDegrees());
     }
 }

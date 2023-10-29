@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 /**
  * Linear regression is a linear approach for modeling the relationship 
- * the response variable using one or more explanatory variables.
+ * between the response variable and one or more explanatory variables.
  * 
  * Y = XA + B
  * Where Y is the dependent variable, X is the independent variable, 

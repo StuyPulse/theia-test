@@ -5,8 +5,11 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
+import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.odometry.AbstractOdometry;
+import com.stuypulse.robot.subsystems.odometry.Odometry;
 import com.stuypulse.robot.util.CustomCamera;
+import com.stuypulse.robot.util.Fiducial;
 import com.stuypulse.robot.util.VisionData;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -21,12 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Vision extends AbstractVision {
-
-    private static final Pose3d NO_POSE =
-            new Pose3d(
-                    new Translation3d(Double.NaN, Double.NaN, Double.NaN),
-                    new Rotation3d(Double.NaN, Double.NaN, Double.NaN));
-    private static final VisionData NO_DATA = new VisionData(NO_POSE, NO_POSE, Double.NaN);
 
     private final CustomCamera[] cameras;
     private final FieldObject2d[] cameraPoses2D;
@@ -62,7 +59,7 @@ public class Vision extends AbstractVision {
         SmartDashboard.putNumber(prefix + "/Pose Y", data.robotPose.getY());
         SmartDashboard.putNumber(prefix + "/Pose Z", data.robotPose.getZ());
 
-        // SmartDashboard.putNumber(prefix + "/Distance to Tag", data.getDistanceToTag());
+        SmartDashboard.putNumber(prefix + "/Distance to Tag", data.calculateDistanceToTag(data.getPrimaryTag()));
         // SmartDashboard.putNumber(prefix + "/Angle to Tag", data.getDegreesToTag());
 
         SmartDashboard.putNumber(
@@ -84,7 +81,10 @@ public class Vision extends AbstractVision {
                 VisionData data = camera.getVisionData();
                 outputs.add(data);
 
-                // Odometry.getInstance().getField().getObject("Fiducial").setPose(Field.getTag())
+                Fiducial tag = data.getPrimaryTag();
+                if (tag != null)
+                    Odometry.getInstance().getField().getObject("Fiducial").setPose(tag.getPose().toPose2d());
+
                 putAprilTagData("Vision/" + camera.getCameraName(), data);
                 cameraPose2D.setPose(data.robotPose.toPose2d());
             }
