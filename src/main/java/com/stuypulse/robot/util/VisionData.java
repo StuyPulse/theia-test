@@ -1,9 +1,14 @@
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
+
 package com.stuypulse.robot.util;
 
 import edu.wpi.first.math.geometry.Pose3d;
 
 public class VisionData {
-    
+
     public final Pose3d cameraLocation;
     public final Pose3d robotPose;
     public final double latency;

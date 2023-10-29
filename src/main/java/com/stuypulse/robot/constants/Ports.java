@@ -1,3 +1,8 @@
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
+
 package com.stuypulse.robot.constants;
 
 /** This file contains the different ports of motors, solenoids and sensors */

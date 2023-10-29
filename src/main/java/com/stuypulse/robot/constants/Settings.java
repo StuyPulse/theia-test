@@ -1,13 +1,18 @@
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
+
 package com.stuypulse.robot.constants;
 
-import com.pathplanner.lib.util.PIDConstants;
 import com.stuypulse.stuylib.math.Vector2D;
-import com.stuypulse.stuylib.network.SmartBoolean;
 import com.stuypulse.stuylib.network.SmartNumber;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+
+import com.pathplanner.lib.util.PIDConstants;
 
 /*-
  * File containing tunable settings for every subsystem on the robot.
@@ -27,7 +32,8 @@ public interface Settings {
         SmartNumber DEADBAND = new SmartNumber("Driver/Deadband", 0.0);
         SmartNumber POWER = new SmartNumber("Driver/Power", 2);
         SmartNumber MAX_SPEED = new SmartNumber("Driver/Max Speed", Swerve.MAX_MODULE_SPEED.get());
-        SmartNumber MAX_ACCELERATION = new SmartNumber("Driver/Max Acceleration", MAX_SPEED.get() * 3);
+        SmartNumber MAX_ACCELERATION =
+                new SmartNumber("Driver/Max Acceleration", MAX_SPEED.get() * 3);
         SmartNumber MAX_TURNING = new SmartNumber("Driver/Max Turning", 6.0);
         SmartNumber RC = new SmartNumber("Driver/RC", 0.05);
     }
@@ -38,7 +44,8 @@ public interface Settings {
 
         SmartNumber MAX_MODULE_SPEED = new SmartNumber("Swerve/Max Module Speed", 5.0);
         SmartNumber MAX_TURNING = new SmartNumber("Swerve/Max Turn Velocity", Math.PI * 2);
-        SmartNumber MODULE_VELOCITY_DEADBAND = new SmartNumber("Swerve/Module Velocity Deadband", 0.02);
+        SmartNumber MODULE_VELOCITY_DEADBAND =
+                new SmartNumber("Swerve/Module Velocity Deadband", 0.02);
 
         public interface Motion {
             PIDConstants XY = new PIDConstants(1, 0, 0.0);
@@ -87,32 +94,31 @@ public interface Settings {
         public interface Modules {
             public interface FrontRight {
                 String ID = "Front Right";
-                Rotation2d WHEEL_ROTATION_OFFSET = Rotation2d.fromDegrees(0)         
-                    .plus(Rotation2d.fromDegrees(0));
+                Rotation2d WHEEL_ROTATION_OFFSET =
+                        Rotation2d.fromDegrees(0).plus(Rotation2d.fromDegrees(0));
                 Translation2d MODULE_LOCATION = new Translation2d(WIDTH * +0.5, LENGTH * -0.5);
             }
 
             public interface FrontLeft {
                 String ID = "Front Left";
-                Rotation2d WHEEL_ROTATION_OFFSET = Rotation2d.fromDegrees(0)
-                    .plus(Rotation2d.fromDegrees(270));
+                Rotation2d WHEEL_ROTATION_OFFSET =
+                        Rotation2d.fromDegrees(0).plus(Rotation2d.fromDegrees(270));
                 Translation2d MODULE_LOCATION = new Translation2d(WIDTH * +0.5, LENGTH * +0.5);
             }
 
             public interface BackLeft {
                 String ID = "Back Left";
-                Rotation2d WHEEL_ROTATION_OFFSET = Rotation2d.fromDegrees(0)
-                    .plus(Rotation2d.fromDegrees(180));
+                Rotation2d WHEEL_ROTATION_OFFSET =
+                        Rotation2d.fromDegrees(0).plus(Rotation2d.fromDegrees(180));
                 Translation2d MODULE_LOCATION = new Translation2d(WIDTH * -0.5, LENGTH * +0.5);
             }
 
             public interface BackRight {
                 String ID = "Back Right";
-                Rotation2d WHEEL_ROTATION_OFFSET = Rotation2d.fromDegrees(0)
-                    .plus(Rotation2d.fromDegrees(90));
+                Rotation2d WHEEL_ROTATION_OFFSET =
+                        Rotation2d.fromDegrees(0).plus(Rotation2d.fromDegrees(90));
                 Translation2d MODULE_LOCATION = new Translation2d(WIDTH * -0.5, LENGTH * -0.5);
             }
         }
     }
-
 }

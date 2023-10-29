@@ -1,14 +1,13 @@
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
+
 package com.stuypulse.robot.subsystems.swerve.modules;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
+import static com.stuypulse.robot.constants.Motors.Swerve.*;
 import static com.stuypulse.robot.constants.Settings.Swerve.*;
 
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
-
-import static com.stuypulse.robot.constants.Motors.Swerve.*;
-import com.stuypulse.robot.constants.Motors;
 import com.stuypulse.stuylib.control.Controller;
 import com.stuypulse.stuylib.control.angle.AngleController;
 import com.stuypulse.stuylib.control.angle.feedback.AnglePIDController;
@@ -17,6 +16,8 @@ import com.stuypulse.stuylib.control.feedforward.MotorFeedforward;
 import com.stuypulse.stuylib.math.Angle;
 import com.stuypulse.stuylib.streams.angles.filters.ARateLimit;
 
+import com.stuypulse.robot.constants.Motors;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -24,8 +25,14 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+
 public class SPSwerveModule extends AbstractSwerveModule {
-    
+
     private final String ID;
     private final Translation2d moduleLocation; // Location of module relative to robot center
     private SwerveModuleState targetState;
@@ -41,7 +48,13 @@ public class SPSwerveModule extends AbstractSwerveModule {
     private AngleController turnController;
     private Controller driveController;
 
-    public SPSwerveModule(String ID, int turnCANID, int turnCANCoderID, int driveCANID, Translation2d moduleLocation, Rotation2d wheelRotationOffset) {
+    public SPSwerveModule(
+            String ID,
+            int turnCANID,
+            int turnCANCoderID,
+            int driveCANID,
+            Translation2d moduleLocation,
+            Rotation2d wheelRotationOffset) {
         this.ID = ID;
         this.moduleLocation = moduleLocation;
         this.targetState = new SwerveModuleState();
@@ -56,10 +69,12 @@ public class SPSwerveModule extends AbstractSwerveModule {
 
         this.wheelRotationOffset = wheelRotationOffset;
 
-        turnController = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD)
-            .setSetpointFilter(new ARateLimit(MAX_TURNING.getAsDouble()));
-        driveController = new PIDController(Drive.kP, Drive.kI, Drive.kD).add(new MotorFeedforward(Drive.kS, Drive.kV, Drive.kA).velocity());
-        
+        turnController =
+                new AnglePIDController(Turn.kP, Turn.kI, Turn.kD)
+                        .setSetpointFilter(new ARateLimit(MAX_TURNING.getAsDouble()));
+        driveController =
+                new PIDController(Drive.kP, Drive.kI, Drive.kD)
+                        .add(new MotorFeedforward(Drive.kS, Drive.kV, Drive.kA).velocity());
     }
 
     private void configureMotors() {
@@ -74,7 +89,7 @@ public class SPSwerveModule extends AbstractSwerveModule {
         driveEncoder.setPositionConversionFactor(Encoder.Drive.POSITION_CONVERSION);
         driveEncoder.setVelocityConversionFactor(Encoder.Drive.VELOCITY_CONVERSION);
         driveEncoder.setInverted(false);
-        
+
         Motors.disableStatusFrames(driveMotor, 3, 4, 5, 6);
         DRIVE.configure(driveMotor);
     }
@@ -103,7 +118,8 @@ public class SPSwerveModule extends AbstractSwerveModule {
     }
 
     private Rotation2d getAngle() {
-        return Rotation2d.fromDegrees(turnCANCoder.getPosition() * Encoder.Turn.POSITION_CONVERSION).minus(wheelRotationOffset);
+        return Rotation2d.fromDegrees(turnCANCoder.getPosition() * Encoder.Turn.POSITION_CONVERSION)
+                .minus(wheelRotationOffset);
     }
 
     @Override
@@ -123,23 +139,34 @@ public class SPSwerveModule extends AbstractSwerveModule {
 
     @Override
     public void periodic() {
-        
-        turnMotor.setVoltage(turnController.update(Angle.fromRotation2d(targetState.angle), Angle.fromRotation2d(getAngle())));
-        driveMotor.setVoltage(driveController.update(targetState.speedMetersPerSecond, getVelocity()));
 
-        SmartDashboard.putNumber("Swerve/" + ID + "/Raw Angle", Units.rotationsToDegrees(turnCANCoder.getPosition()));
+        turnMotor.setVoltage(
+                turnController.update(
+                        Angle.fromRotation2d(targetState.angle), Angle.fromRotation2d(getAngle())));
+        driveMotor.setVoltage(
+                driveController.update(targetState.speedMetersPerSecond, getVelocity()));
+
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Raw Angle",
+                Units.rotationsToDegrees(turnCANCoder.getPosition()));
         SmartDashboard.putNumber("Swerve/" + ID + "/Angle", getAngle().getDegrees());
-        SmartDashboard.putNumber("Swerve/" + ID + "/Angle Error", turnController.getError().toDegrees());
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Angle Error", turnController.getError().toDegrees());
         SmartDashboard.putNumber("Swerve/" + ID + "/Target Angle", targetState.angle.getDegrees());
 
-        SmartDashboard.putNumber("Swerve/" + ID + "/Turn Motor Voltage", turnController.getOutput());
-        SmartDashboard.putNumber("Swerve/" + ID + "/Turn Motor Current", turnMotor.getOutputCurrent());
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Turn Motor Voltage", turnController.getOutput());
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Turn Motor Current", turnMotor.getOutputCurrent());
 
         SmartDashboard.putNumber("Swerve/" + ID + "/Velocity", getVelocity());
         SmartDashboard.putNumber("Swerve/" + ID + "/Velocity Error", driveController.getError());
-        SmartDashboard.putNumber("Swerve/" + ID + "/Target Velocity", targetState.speedMetersPerSecond);
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Target Velocity", targetState.speedMetersPerSecond);
 
-        SmartDashboard.putNumber("Swerve/" + ID + "/Drive Motor Voltage", driveController.getOutput());
-        SmartDashboard.putNumber("Swerve/" + ID + "/Drive Motor Current", driveMotor.getOutputCurrent());
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Drive Motor Voltage", driveController.getOutput());
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Drive Motor Current", driveMotor.getOutputCurrent());
     }
 }

@@ -1,3 +1,8 @@
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
+
 package com.stuypulse.robot.subsystems.swerve;
 
 import com.stuypulse.stuylib.math.Vector2D;
@@ -38,19 +43,43 @@ public class SwerveDrive extends SubsystemBase {
 
     static {
         if (RobotBase.isReal()) {
-            instance = new SwerveDrive(
-                new SPSwerveModule(FrontRight.ID, Ports.Swerve.FrontRight.TURN_MOTOR, 0, Ports.Swerve.FrontRight.DRIVE_MOTOR, FrontRight.MODULE_LOCATION, FrontRight.WHEEL_ROTATION_OFFSET),
-                new SPSwerveModule(FrontRight.ID, Ports.Swerve.FrontRight.TURN_MOTOR, 0, Ports.Swerve.FrontRight.DRIVE_MOTOR, FrontRight.MODULE_LOCATION, FrontRight.WHEEL_ROTATION_OFFSET),
-                new SPSwerveModule(FrontRight.ID, Ports.Swerve.FrontRight.TURN_MOTOR, 0, Ports.Swerve.FrontRight.DRIVE_MOTOR, FrontRight.MODULE_LOCATION, FrontRight.WHEEL_ROTATION_OFFSET),
-                new SPSwerveModule(FrontRight.ID, Ports.Swerve.FrontRight.TURN_MOTOR, 0, Ports.Swerve.FrontRight.DRIVE_MOTOR, FrontRight.MODULE_LOCATION, FrontRight.WHEEL_ROTATION_OFFSET)
-            );
+            instance =
+                    new SwerveDrive(
+                            new SPSwerveModule(
+                                    FrontRight.ID,
+                                    Ports.Swerve.FrontRight.TURN_MOTOR,
+                                    0,
+                                    Ports.Swerve.FrontRight.DRIVE_MOTOR,
+                                    FrontRight.MODULE_LOCATION,
+                                    FrontRight.WHEEL_ROTATION_OFFSET),
+                            new SPSwerveModule(
+                                    FrontRight.ID,
+                                    Ports.Swerve.FrontRight.TURN_MOTOR,
+                                    0,
+                                    Ports.Swerve.FrontRight.DRIVE_MOTOR,
+                                    FrontRight.MODULE_LOCATION,
+                                    FrontRight.WHEEL_ROTATION_OFFSET),
+                            new SPSwerveModule(
+                                    FrontRight.ID,
+                                    Ports.Swerve.FrontRight.TURN_MOTOR,
+                                    0,
+                                    Ports.Swerve.FrontRight.DRIVE_MOTOR,
+                                    FrontRight.MODULE_LOCATION,
+                                    FrontRight.WHEEL_ROTATION_OFFSET),
+                            new SPSwerveModule(
+                                    FrontRight.ID,
+                                    Ports.Swerve.FrontRight.TURN_MOTOR,
+                                    0,
+                                    Ports.Swerve.FrontRight.DRIVE_MOTOR,
+                                    FrontRight.MODULE_LOCATION,
+                                    FrontRight.WHEEL_ROTATION_OFFSET));
         } else {
-            instance = new SwerveDrive(
-                new SimModule(FrontRight.ID, FrontRight.MODULE_LOCATION),
-                new SimModule(FrontLeft.ID, FrontLeft.MODULE_LOCATION),
-                new SimModule(BackLeft.ID, BackLeft.MODULE_LOCATION),
-                new SimModule(BackRight.ID, BackRight.MODULE_LOCATION)
-            );
+            instance =
+                    new SwerveDrive(
+                            new SimModule(FrontRight.ID, FrontRight.MODULE_LOCATION),
+                            new SimModule(FrontLeft.ID, FrontLeft.MODULE_LOCATION),
+                            new SimModule(BackLeft.ID, BackLeft.MODULE_LOCATION),
+                            new SimModule(BackRight.ID, BackRight.MODULE_LOCATION));
         }
     }
 
@@ -73,30 +102,27 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void initFieldObjects(Field2d field) {
-        for (int i = 0; i < modules.length; i++) 
-            module2Ds[i] = field.getObject(modules[i].getID()+"-2d");
+        for (int i = 0; i < modules.length; i++)
+            module2Ds[i] = field.getObject(modules[i].getID() + "-2d");
     }
 
     private Translation2d[] getModuleOffsets() {
         Translation2d[] locations = new Translation2d[modules.length];
 
-        for (int i = 0; i < modules.length; ++i) 
-            locations[i] = modules[i].getModuleLocation();
+        for (int i = 0; i < modules.length; ++i) locations[i] = modules[i].getModuleLocation();
 
         return locations;
     }
 
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
-        for (int i = 0; i < modules.length; i++) 
-            positions[i] = modules[i].getModulePosition();
+        for (int i = 0; i < modules.length; i++) positions[i] = modules[i].getModulePosition();
         return positions;
     }
 
     public SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] states = new SwerveModuleState[modules.length];
-        for (int i = 0; i < modules.length; i++) 
-            states[i] = modules[i].getState();
+        for (int i = 0; i < modules.length; i++) states[i] = modules[i].getState();
         return states;
     }
 
@@ -105,24 +131,23 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void drive(Vector2D velocity, double omega) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                velocity.y, 
-                -velocity.x,
-                -omega,
-                Odometry.getInstance().getRotation());
+        ChassisSpeeds speeds =
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        velocity.y, -velocity.x, -omega, Odometry.getInstance().getRotation());
 
-        Pose2d robotVel = new Pose2d(
-            Settings.DT * speeds.vxMetersPerSecond,
-            Settings.DT * speeds.vyMetersPerSecond,
-            Rotation2d.fromRadians(Settings.DT * speeds.omegaRadiansPerSecond));
+        Pose2d robotVel =
+                new Pose2d(
+                        Settings.DT * speeds.vxMetersPerSecond,
+                        Settings.DT * speeds.vyMetersPerSecond,
+                        Rotation2d.fromRadians(Settings.DT * speeds.omegaRadiansPerSecond));
 
         Twist2d twistVel = new Pose2d().log(robotVel);
 
-        setChassisSpeeds(new ChassisSpeeds(
-            twistVel.dx / Settings.DT,
-            twistVel.dy / Settings.DT,
-            twistVel.dtheta / Settings.DT
-        ));
+        setChassisSpeeds(
+                new ChassisSpeeds(
+                        twistVel.dx / Settings.DT,
+                        twistVel.dy / Settings.DT,
+                        twistVel.dtheta / Settings.DT));
     }
 
     public void setChassisSpeeds(ChassisSpeeds robotSpeed) {
@@ -137,12 +162,15 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void setModuleStates(SwerveModuleState... states) {
-        if (states.length != modules.length) 
-            throw new IllegalArgumentException("Number of desired module states does not match number of modules (" + modules.length + ")");
+        if (states.length != modules.length)
+            throw new IllegalArgumentException(
+                    "Number of desired module states does not match number of modules ("
+                            + modules.length
+                            + ")");
 
         SwerveDriveKinematics.desaturateWheelSpeeds(states, Swerve.MAX_MODULE_SPEED.get());
 
-        for(int i = 0; i < modules.length; i++) 
+        for (int i = 0; i < modules.length; i++)
             modules[i].setTargetState(filterModuleState(states[i]));
     }
 
@@ -183,10 +211,11 @@ public class SwerveDrive extends SubsystemBase {
         Rotation2d angle = odometry.getRotation();
 
         for (int i = 0; i < modules.length; ++i)
-            module2Ds[i].setPose(new Pose2d(
-                pose.getTranslation().plus(modules[i].getModuleLocation().rotateBy(angle)),
-                modules[i].getState().angle.plus(angle)
-            ));
+            module2Ds[i].setPose(
+                    new Pose2d(
+                            pose.getTranslation()
+                                    .plus(modules[i].getModuleLocation().rotateBy(angle)),
+                            modules[i].getState().angle.plus(angle)));
 
         SmartDashboard.putNumber("Swerve/Gyro Angle", getGyroYaw().getDegrees());
         SmartDashboard.putNumber("Swerve/Gyro Pitch", getGyroPitch().getDegrees());
@@ -196,7 +225,7 @@ public class SwerveDrive extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         var speeds = getKinematics().toChassisSpeeds(getModuleStates());
-        gyro.setAngleAdjustment(gyro.getAngle() - Math.toDegrees(speeds.omegaRadiansPerSecond * Settings.DT));
+        gyro.setAngleAdjustment(
+                gyro.getAngle() - Math.toDegrees(speeds.omegaRadiansPerSecond * Settings.DT));
     }
-
 }

@@ -1,3 +1,8 @@
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
+
 package com.stuypulse.robot.constants;
 
 import com.stuypulse.robot.util.Fiducial;
@@ -12,8 +17,22 @@ public interface Field {
     public static final double FIDUCIAL_SIZE = 0.15558;
 
     Fiducial TAGS[] = {
-        new Fiducial(0, new Pose3d(new Translation3d(0, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
-        new Fiducial(1, new Pose3d(new Translation3d(1, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
+        new Fiducial(
+                0,
+                new Pose3d(
+                        new Translation3d(0, 4, 0),
+                        new Rotation3d(
+                                Units.degreesToRadians(0),
+                                Units.degreesToRadians(0),
+                                Units.degreesToRadians(180)))),
+        new Fiducial(
+                1,
+                new Pose3d(
+                        new Translation3d(1, 4, 0),
+                        new Rotation3d(
+                                Units.degreesToRadians(0),
+                                Units.degreesToRadians(0),
+                                Units.degreesToRadians(180)))),
     };
 
     public static boolean isValidTag(int id) {

@@ -1,6 +1,9 @@
-package com.stuypulse.robot.subsystems.odometry;
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
 
-import java.util.List;
+package com.stuypulse.robot.subsystems.odometry;
 
 import com.stuypulse.robot.subsystems.swerve.SwerveDrive;
 import com.stuypulse.robot.subsystems.vision.AbstractVision;
@@ -18,6 +21,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.List;
+
 public class Odometry extends AbstractOdometry {
 
     private final SwerveDrivePoseEstimator estimator;
@@ -31,20 +36,22 @@ public class Odometry extends AbstractOdometry {
 
     protected Odometry() {
         SwerveDrive swerve = SwerveDrive.getInstance();
-        
-        this.odometry = new SwerveDriveOdometry(
-            swerve.getKinematics(), 
-            swerve.getGyroYaw(), 
-            swerve.getModulePositions(), 
-            new Pose2d());
 
-        this.estimator = new SwerveDrivePoseEstimator(
-            swerve.getKinematics(), 
-            swerve.getGyroYaw(), 
-            swerve.getModulePositions(), 
-            new Pose2d(),
-            VecBuilder.fill(0.1, 0.1, 0.1),
-            visionStdDevs);
+        this.odometry =
+                new SwerveDriveOdometry(
+                        swerve.getKinematics(),
+                        swerve.getGyroYaw(),
+                        swerve.getModulePositions(),
+                        new Pose2d());
+
+        this.estimator =
+                new SwerveDrivePoseEstimator(
+                        swerve.getKinematics(),
+                        swerve.getGyroYaw(),
+                        swerve.getModulePositions(),
+                        new Pose2d(),
+                        VecBuilder.fill(0.1, 0.1, 0.1),
+                        visionStdDevs);
 
         this.field = new Field2d();
         this.odometryPose2D = field.getObject("Odometry Pose");
@@ -61,13 +68,15 @@ public class Odometry extends AbstractOdometry {
 
     @Override
     public Pose2d getPose() {
-        return new Pose2d(estimator.getEstimatedPosition().getTranslation(), odometry.getPoseMeters().getRotation());
+        return new Pose2d(
+                estimator.getEstimatedPosition().getTranslation(),
+                odometry.getPoseMeters().getRotation());
     }
 
     @Override
     public void reset(Pose2d pose2d) {
         SwerveDrive swerve = SwerveDrive.getInstance();
-        
+
         odometry.resetPosition(swerve.getGyroYaw(), swerve.getModulePositions(), pose2d);
         estimator.resetPosition(swerve.getGyroYaw(), swerve.getModulePositions(), pose2d);
     }
@@ -75,17 +84,16 @@ public class Odometry extends AbstractOdometry {
     private void updateWithVision(List<VisionData> visionData) {
         for (VisionData result : visionData) {
             estimator.addVisionMeasurement(
-                result.robotPose.toPose2d(), 
-                Timer.getFPGATimestamp() - result.latency,
-                visionStdDevs
-            );
+                    result.robotPose.toPose2d(),
+                    Timer.getFPGATimestamp() - result.latency,
+                    visionStdDevs);
         }
     }
 
     @Override
     public void periodic() {
         SwerveDrive swerve = SwerveDrive.getInstance();
-        
+
         odometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
         estimator.update(swerve.getGyroYaw(), swerve.getModulePositions());
 
@@ -95,12 +103,19 @@ public class Odometry extends AbstractOdometry {
         odometryPose2D.setPose(odometry.getPoseMeters());
         estimatorPose2D.setPose(estimator.getEstimatedPosition());
 
-        SmartDashboard.putNumber("Odometry/Odometry/X", odometry.getPoseMeters().getTranslation().getX());
-        SmartDashboard.putNumber("Odometry/Odometry/Y", odometry.getPoseMeters().getTranslation().getY());
-        SmartDashboard.putNumber("Odometry/Odometry/Rotation", odometry.getPoseMeters().getRotation().getDegrees());
+        SmartDashboard.putNumber(
+                "Odometry/Odometry/X", odometry.getPoseMeters().getTranslation().getX());
+        SmartDashboard.putNumber(
+                "Odometry/Odometry/Y", odometry.getPoseMeters().getTranslation().getY());
+        SmartDashboard.putNumber(
+                "Odometry/Odometry/Rotation", odometry.getPoseMeters().getRotation().getDegrees());
 
-        SmartDashboard.putNumber("Odometry/Estimator/X", estimator.getEstimatedPosition().getTranslation().getX());
-        SmartDashboard.putNumber("Odometry/Estimator/Y", estimator.getEstimatedPosition().getTranslation().getY());
-        SmartDashboard.putNumber("Odometry/Estimator/Rotation", estimator.getEstimatedPosition().getRotation().getDegrees());
+        SmartDashboard.putNumber(
+                "Odometry/Estimator/X", estimator.getEstimatedPosition().getTranslation().getX());
+        SmartDashboard.putNumber(
+                "Odometry/Estimator/Y", estimator.getEstimatedPosition().getTranslation().getY());
+        SmartDashboard.putNumber(
+                "Odometry/Estimator/Rotation",
+                estimator.getEstimatedPosition().getRotation().getDegrees());
     }
 }

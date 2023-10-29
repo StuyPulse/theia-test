@@ -1,3 +1,8 @@
+/************************ PROJECT OFSS ************************/
+/* Copyright (c) 2024 StuyPulse Robotics. All rights reserved.*/
+/* This work is licensed under the terms of the MIT license.  */
+/**************************************************************/
+
 package com.stuypulse.robot.subsystems.swerve.modules;
 
 import com.stuypulse.stuylib.control.Controller;
@@ -33,16 +38,16 @@ public class SimModule extends AbstractSwerveModule {
     private static LinearSystem<N2, N1, N2> identifyVelocityPositionSystem(double kV, double kA) {
         if (kV <= 0.0) {
             throw new IllegalArgumentException("Kv must be greater than zero.");
-          }
-          if (kA <= 0.0) {
+        }
+        if (kA <= 0.0) {
             throw new IllegalArgumentException("Ka must be greater than zero.");
-          }
+        }
 
-          return new LinearSystem<N2, N1, N2>(
-              Matrix.mat(Nat.N2(), Nat.N2()).fill(0.0, 1.0, 0.0, -kV / kA),
-              Matrix.mat(Nat.N2(), Nat.N1()).fill(0.0, 1.0 / kA),
-              Matrix.mat(Nat.N2(), Nat.N2()).fill(1.0, 0.0, 0.0, 1.0),
-              Matrix.mat(Nat.N2(), Nat.N1()).fill(0.0, 0.0));
+        return new LinearSystem<N2, N1, N2>(
+                Matrix.mat(Nat.N2(), Nat.N2()).fill(0.0, 1.0, 0.0, -kV / kA),
+                Matrix.mat(Nat.N2(), Nat.N1()).fill(0.0, 1.0 / kA),
+                Matrix.mat(Nat.N2(), Nat.N2()).fill(1.0, 0.0, 0.0, 1.0),
+                Matrix.mat(Nat.N2(), Nat.N1()).fill(0.0, 0.0));
     }
 
     private final String ID;
@@ -61,13 +66,21 @@ public class SimModule extends AbstractSwerveModule {
         this.ID = ID;
         this.moduleLocation = moduleLocation;
 
-        turnSim = new LinearSystemSim<>(LinearSystemId.identifyPositionSystem(Turn.kV.doubleValue(), Turn.kA.doubleValue()));
-        turnController = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD)
-            .setSetpointFilter(new ARateLimit(Swerve.MAX_TURNING));
+        turnSim =
+                new LinearSystemSim<>(
+                        LinearSystemId.identifyPositionSystem(
+                                Turn.kV.doubleValue(), Turn.kA.doubleValue()));
+        turnController =
+                new AnglePIDController(Turn.kP, Turn.kI, Turn.kD)
+                        .setSetpointFilter(new ARateLimit(Swerve.MAX_TURNING));
 
-        driveSim = new LinearSystemSim<>(identifyVelocityPositionSystem(Drive.kV.doubleValue(), Drive.kA.doubleValue()));
-        driveController = new PIDController(Drive.kP, Drive.kI, Drive.kD)
-            .add(new MotorFeedforward(Drive.kS, Drive.kV, Drive.kA).velocity());
+        driveSim =
+                new LinearSystemSim<>(
+                        identifyVelocityPositionSystem(
+                                Drive.kV.doubleValue(), Drive.kA.doubleValue()));
+        driveController =
+                new PIDController(Drive.kP, Drive.kI, Drive.kD)
+                        .add(new MotorFeedforward(Drive.kS, Drive.kV, Drive.kA).velocity());
 
         targetState = new SwerveModuleState();
     }
@@ -117,20 +130,24 @@ public class SimModule extends AbstractSwerveModule {
     @Override
     public void periodic() {
 
-        turnController.update(Angle.fromRotation2d(targetState.angle), Angle.fromRotation2d(getAngle()));
+        turnController.update(
+                Angle.fromRotation2d(targetState.angle), Angle.fromRotation2d(getAngle()));
         driveController.update(targetState.speedMetersPerSecond, getVelocity());
 
         SmartDashboard.putNumber("Swerve/" + ID + "/Target Angle", targetState.angle.getDegrees());
         SmartDashboard.putNumber("Swerve/" + ID + "/Angle", getAngle().getDegrees());
-        SmartDashboard.putNumber("Swerve/" + ID + "/Angle Error", turnController.getError().toDegrees());
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Angle Error", turnController.getError().toDegrees());
         SmartDashboard.putNumber("Swerve/" + ID + "/Angle Voltage", turnController.getOutput());
         SmartDashboard.putNumber("Swerve/" + ID + "/Angle Current", turnSim.getCurrentDrawAmps());
-        
-        SmartDashboard.putNumber("Swerve/" + ID + "/Target Velocity", targetState.speedMetersPerSecond);
+
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Target Velocity", targetState.speedMetersPerSecond);
         SmartDashboard.putNumber("Swerve/" + ID + "/Velocity", getVelocity());
         SmartDashboard.putNumber("Swerve/" + ID + "/Velocity Error", driveController.getError());
         SmartDashboard.putNumber("Swerve/" + ID + "/Velocity Voltage", driveController.getOutput());
-        SmartDashboard.putNumber("Swerve/" + ID + "/Velocity Current", driveSim.getCurrentDrawAmps());
+        SmartDashboard.putNumber(
+                "Swerve/" + ID + "/Velocity Current", driveSim.getCurrentDrawAmps());
     }
 
     @Override
@@ -141,8 +158,8 @@ public class SimModule extends AbstractSwerveModule {
         turnSim.setInput(turnController.getOutput());
         turnSim.update(Settings.DT);
 
-       RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(
-           turnSim.getCurrentDrawAmps() + driveSim.getCurrentDrawAmps()
-       ));
+        RoboRioSim.setVInVoltage(
+                BatterySim.calculateDefaultBatteryLoadedVoltage(
+                        turnSim.getCurrentDrawAmps() + driveSim.getCurrentDrawAmps()));
     }
 }
