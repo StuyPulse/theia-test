@@ -9,6 +9,7 @@ import com.stuypulse.robot.util.Fiducial;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
@@ -36,11 +37,15 @@ public interface Field {
     };
 
     public static boolean isValidTag(int id) {
-        return id >= 0 && id < TAGS.length;
+        for (Fiducial tag : TAGS)
+            if (tag.getID() == id) return true;
+        return false;
     }
 
     public static Pose3d getTag(int id) {
-        return TAGS[id].getPose();
+        for (Fiducial tag : TAGS)
+            if (tag.getID() == id) return tag.getPose();
+        return null;
     }
 
     public static double[] getTagLayout(Fiducial[] fiducials) {
@@ -59,4 +64,10 @@ public interface Field {
 
         return layout;
     }
+
+    // XY Standard Deviation vs Distance
+    Translation2d[] xyStdDevs = new Translation2d[] {};
+
+    // Theta Standard Deviation vs Distance
+    Translation2d[] thetaStdDevs = new Translation2d[] {};
 }

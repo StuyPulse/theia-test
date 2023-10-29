@@ -13,6 +13,10 @@ public class VisionData {
     public final Pose3d robotPose;
     public final double latency;
 
+    public double calculateDistanceToTag(Fiducial tag) {
+        return cameraLocation.getTranslation().getDistance(tag.getPose().getTranslation());
+    }
+
     public VisionData(Pose3d cameraLocation, Pose3d robotPose, double latency) {
         this.cameraLocation = cameraLocation;
         this.robotPose = robotPose;

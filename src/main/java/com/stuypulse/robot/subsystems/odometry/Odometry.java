@@ -5,8 +5,10 @@
 
 package com.stuypulse.robot.subsystems.odometry;
 
+import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.SwerveDrive;
 import com.stuypulse.robot.subsystems.vision.AbstractVision;
+import com.stuypulse.robot.util.LinearRegression;
 import com.stuypulse.robot.util.VisionData;
 
 import edu.wpi.first.math.VecBuilder;
@@ -27,6 +29,9 @@ public class Odometry extends AbstractOdometry {
 
     private final SwerveDrivePoseEstimator estimator;
     private final SwerveDriveOdometry odometry;
+
+    private final LinearRegression xyRegression;
+    private final LinearRegression thetaRegression;
 
     private final Field2d field;
     private final FieldObject2d odometryPose2D;
@@ -52,6 +57,9 @@ public class Odometry extends AbstractOdometry {
                         new Pose2d(),
                         VecBuilder.fill(0.1, 0.1, 0.1),
                         visionStdDevs);
+
+        xyRegression = new LinearRegression(Field.xyStdDevs);
+        thetaRegression = new LinearRegression(Field.thetaStdDevs);
 
         this.field = new Field2d();
         this.odometryPose2D = field.getObject("Odometry Pose");
@@ -81,12 +89,22 @@ public class Odometry extends AbstractOdometry {
         estimator.resetPosition(swerve.getGyroYaw(), swerve.getModulePositions(), pose2d);
     }
 
+    private Vector<N3> getStdDevs(double distance) {
+        double xyStdDev = xyRegression.calculatePoint(distance);
+        return VecBuilder.fill(
+                xyStdDev,
+                xyStdDev,
+                thetaRegression.calculatePoint(distance));
+    }
+
     private void updateWithVision(List<VisionData> visionData) {
         for (VisionData result : visionData) {
+            // TODO: Make camera output tag ID
+            double distance = result.calculateDistanceToTag(null);
             estimator.addVisionMeasurement(
                     result.robotPose.toPose2d(),
                     Timer.getFPGATimestamp() - result.latency,
-                    visionStdDevs);
+                    getStdDevs(distance));
         }
     }
 
