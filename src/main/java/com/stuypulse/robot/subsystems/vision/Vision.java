@@ -5,7 +5,6 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
-import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.odometry.AbstractOdometry;
 import com.stuypulse.robot.subsystems.odometry.Odometry;
 import com.stuypulse.robot.util.CustomCamera;
@@ -14,7 +13,6 @@ import com.stuypulse.robot.util.VisionData;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;

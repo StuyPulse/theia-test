@@ -19,8 +19,9 @@ import com.stuypulse.robot.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class SwerveDriveDrive extends Command {
+public class SwerveDriveDrive extends CommandBase {
 
     private final SwerveDrive swerve;
 
