@@ -19,10 +19,16 @@ public interface Field {
 
     Fiducial TAGS[] = {
         new Fiducial(0,new Pose3d(new Translation3d(0, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
-        new Fiducial(1,new Pose3d(new Translation3d(1, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
-        new Fiducial(2,new Pose3d(new Translation3d(2, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
-        new Fiducial(3,new Pose3d(new Translation3d(3, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
-        new Fiducial(4,new Pose3d(new Translation3d(4, 4, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(180)))),
+        
+        new Fiducial(1,new Pose3d(new Translation3d(15.513, 1.072, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
+        new Fiducial(2,new Pose3d(new Translation3d(15.513, 2.75, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
+        new Fiducial(3,new Pose3d(new Translation3d(15.513, 4.42, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
+        new Fiducial(4,new Pose3d(new Translation3d(16.18, 6.75, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(180)))),
+
+        new Fiducial(5,new Pose3d(new Translation3d(0.36, 6.75, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(0)))),
+        new Fiducial(6,new Pose3d(new Translation3d(1.027, 4.42, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(0)))),
+        new Fiducial(7,new Pose3d(new Translation3d(1.027, 2.75, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(0)))),
+        new Fiducial(8,new Pose3d(new Translation3d(1.027, 1.072, 0), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0), Units.degreesToRadians(0)))),
     };
 
     public static boolean isValidTag(int id) {
