@@ -37,11 +37,11 @@ public class Vision extends AbstractVision {
         cameras = new CustomCamera[cameraNames.length];
         cameraPoses2D = new FieldObject2d[cameraNames.length];
 
-        // Field2d field = AbstractOdometry.getInstance().getField();
+        Field2d field = AbstractOdometry.getInstance().getField();
 
         for (int i = 0; i < cameraNames.length; i++) {
             cameras[i] = new CustomCamera(cameraNames[i], cameraLocations[i]);
-            // cameraPoses2D[i] = field.getObject(cameraNames[i]);
+            cameraPoses2D[i] = field.getObject(cameraNames[i]);
         }
 
         outputs = new ArrayList<>();

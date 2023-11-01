@@ -108,6 +108,8 @@ public class Odometry extends AbstractOdometry {
             Fiducial primaryTag = result.getPrimaryTag();
             double distance = result.calculateDistanceToTag(primaryTag);
 
+            System.out.println(result.robotPose.toPose2d());
+
             estimator.addVisionMeasurement(
                 result.robotPose.toPose2d(), 
                 Timer.getFPGATimestamp() - result.latency, 

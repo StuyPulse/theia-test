@@ -12,7 +12,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 
 public class VisionData {
 
-    public final long[] ids;
+    // public final long[] ids;
+    public final long id;
     public final Translation3d[] tvecs;
     public final Pose3d cameraLocation;
     public final Pose3d robotPose;
@@ -23,16 +24,15 @@ public class VisionData {
     }
 
     private int getPrimaryID() {
-        if (ids.length == 0) return -1;
-        return (int) ids[0];
+        return (int) id;
     }
 
     public Fiducial getPrimaryTag() {
         return Field.getTag(getPrimaryID());
     }
 
-    public VisionData(long[] ids, Translation3d[] tvecs, Pose3d cameraLocation, Pose3d robotPose, double latency) {
-        this.ids = ids;
+    public VisionData(long id, Translation3d[] tvecs, Pose3d cameraLocation, Pose3d robotPose, double latency) {
+        this.id = id;
         this.tvecs = tvecs;
         this.cameraLocation = cameraLocation;
         this.robotPose = robotPose;

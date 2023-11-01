@@ -26,8 +26,8 @@ public class RobotContainer {
     public final Gamepad operator = new AutoGamepad(Ports.Gamepad.OPERATOR);
 
     // Subsystem
-    // public final SwerveDrive swerve = SwerveDrive.getInstance();
-    // public final AbstractOdometry odometry = AbstractOdometry.getInstance();
+    public final SwerveDrive swerve = SwerveDrive.getInstance();
+    public final AbstractOdometry odometry = AbstractOdometry.getInstance();
     public final AbstractVision vision = AbstractVision.getInstance();
 
     // Autons
@@ -46,7 +46,7 @@ public class RobotContainer {
     /****************/
 
     private void configureDefaultCommands() {
-        // swerve.setDefaultCommand(new SwerveDriveDrive(driver));
+        swerve.setDefaultCommand(new SwerveDriveDrive(driver));
     }
 
     /***************/

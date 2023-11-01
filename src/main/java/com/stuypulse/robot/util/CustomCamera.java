@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerArraySubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
@@ -31,16 +32,27 @@ public class CustomCamera {
     private final double camera_gain = 0.0;
     private final double camera_brightness = 0.0;
 
-    private final DoubleArraySubscriber robotPoseSub;
     private final IntegerSubscriber fpsSub;
-    private final DoubleArraySubscriber tvecsSub;
-    private final IntegerArraySubscriber idSub;
+
+    private final IntegerSubscriber idSub;
+    private final DoubleSubscriber robot_x_sub;
+    private final DoubleSubscriber robot_y_sub;
+    private final DoubleSubscriber robot_z_sub;
+    private final DoubleSubscriber robot_roll_sub;
+    private final DoubleSubscriber robot_pitch_sub;
+    private final DoubleSubscriber robot_yaw_sub;
+    private final DoubleSubscriber latency_sub;
 
     private final Pose3d cameraPose;
 
-    private double[] rawPoseData;
-    private double[] rawTvecsData;
-    private long[] rawIdData;
+    private double robot_x;
+    private double robot_y;
+    private double robot_z;
+    private double robot_roll;
+    private double robot_pitch;
+    private double robot_yaw;
+    private double latency;
+    private long id;
 
     public CustomCamera(String cameraName, Pose3d cameraPose) {
 
@@ -60,21 +72,18 @@ public class CustomCamera {
         configTable.getDoubleArrayTopic("fiducial_layout").publish().set(Field.getTagLayout(Field.TAGS));
 
         NetworkTable outputTable = table.getSubTable("output");
-        robotPoseSub = outputTable.getDoubleArrayTopic("robot_pose")
-            .subscribe(
-                new double[] {},
-                PubSubOption.keepDuplicates(true),
-                PubSubOption.sendAll(true));
         
         fpsSub = outputTable.getIntegerTopic("fps").subscribe(0);
 
-        tvecsSub = outputTable.getDoubleArrayTopic("tvecs")
-            .subscribe(
-                new double[] {},
-                PubSubOption.keepDuplicates(true),
-                PubSubOption.sendAll(true));
+        robot_x_sub = outputTable.getDoubleTopic("robot_pose_x").subscribe(0);
+        robot_y_sub = outputTable.getDoubleTopic("robot_pose_y").subscribe(0);
+        robot_z_sub = outputTable.getDoubleTopic("robot_pose_z").subscribe(0);
+        robot_roll_sub = outputTable.getDoubleTopic("robot_pose_roll").subscribe(0);
+        robot_pitch_sub = outputTable.getDoubleTopic("robot_pose_pitch").subscribe(0);
+        robot_yaw_sub = outputTable.getDoubleTopic("robot_pose_yaw").subscribe(0);
 
-        idSub = outputTable.getIntegerArrayTopic("ids").subscribe(new long[] {});
+        latency_sub = outputTable.getDoubleTopic("latency").subscribe(-1);
+        idSub = outputTable.getIntegerTopic("id").subscribe(-1);
 
         this.cameraPose = cameraPose;
     }
@@ -84,39 +93,37 @@ public class CustomCamera {
     }
 
     public void updateData() {
-        rawPoseData = robotPoseSub.get();
-        rawTvecsData = tvecsSub.get();
-        rawIdData = idSub.get();
+        robot_x = robot_x_sub.get();
+        robot_y = robot_y_sub.get();
+        robot_z = robot_z_sub.get();
+        robot_roll = robot_roll_sub.get();
+        robot_pitch = robot_pitch_sub.get();
+        robot_yaw = robot_yaw_sub.get();
+        latency = latency_sub.get();
+        id = idSub.get();
     }
 
     public boolean hasData() {
-        return rawPoseData.length > 1 && 
-               rawTvecsData.length > 1 && 
-               rawIdData.length > 1;
+        return id != -1;
     }
 
     private Pose3d getRobotPose() {
         return new Pose3d(
-                new Translation3d(rawPoseData[0], rawPoseData[1], rawPoseData[2]),
-                new Rotation3d(
-                        Units.degreesToRadians(rawPoseData[3]),
-                        Units.degreesToRadians(rawPoseData[4]),
-                        Units.degreesToRadians(rawPoseData[5])));
+            new Translation3d(robot_x, robot_y, robot_z),
+            new Rotation3d(Units.degreesToRadians(robot_roll), Units.degreesToRadians(robot_pitch), Units.degreesToRadians(robot_yaw))
+        );
     }
     
     private Translation3d[] getTvecs() {
-        Translation3d[] tvecs = new Translation3d[rawTvecsData.length / 3];
-        for (int i = 0; i < rawTvecsData.length; i += 3)
-            tvecs[i / 3] = new Translation3d(rawTvecsData[i], rawTvecsData[i + 1], rawTvecsData[i + 2]);
-        return tvecs;
+        return null;
     }
 
     private double getLatency() {
-        return Units.millisecondsToSeconds(rawPoseData[6]);
+        return Units.millisecondsToSeconds(latency);
     }
 
     public VisionData getVisionData() {
-        return new VisionData(rawIdData, getTvecs(), cameraPose, getRobotPose(), getLatency());
+        return new VisionData(id, getTvecs(), cameraPose, getRobotPose(), getLatency());
     }
 
     public long getFPS() {
