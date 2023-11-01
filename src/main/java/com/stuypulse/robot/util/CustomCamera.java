@@ -90,7 +90,9 @@ public class CustomCamera {
     }
 
     public boolean hasData() {
-        return rawPoseData.length > 0;
+        return rawPoseData.length > 1 && 
+               rawTvecsData.length > 1 && 
+               rawIdData.length > 1;
     }
 
     private Pose3d getRobotPose() {
