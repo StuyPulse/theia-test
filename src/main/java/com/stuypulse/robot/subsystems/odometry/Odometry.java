@@ -112,11 +112,6 @@ public class Odometry extends AbstractOdometry {
                 result.robotPose.toPose2d(), 
                 Timer.getFPGATimestamp() - result.latency, 
                 getStdDevs(distance));
-
-            // estimator.addVisionMeasurement(
-            //     result.robotPose.toPose2d(), 
-            //     Timer.getFPGATimestamp() - result.latency, 
-            //     VecBuilder.fill(0.01, 0.01, 0.1));
         }
     }
 
@@ -129,10 +124,7 @@ public class Odometry extends AbstractOdometry {
 
         List<VisionData> output = AbstractVision.getInstance().getOutput();
         
-        if (!output.isEmpty()) {
-            SmartDashboard.putNumber("DERP", output.get(0).robotPose.getTranslation().getX());
-            updateWithVision(output);
-        }
+        if (!output.isEmpty()) updateWithVision(output);
 
         odometryPose2D.setPose(odometry.getPoseMeters());
         estimatorPose2D.setPose(estimator.getEstimatedPosition());
