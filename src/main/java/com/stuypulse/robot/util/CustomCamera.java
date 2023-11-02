@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerArraySubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
@@ -26,12 +27,13 @@ public class CustomCamera {
     private final int camera_id = 0;
     private final int camera_resolution_width = 1600;
     private final int camera_resolution_height = 1200;
-    private final int camera_auto_exposure = 0;
-    private final int camera_exposure = 0;
+    private final int camera_auto_exposure = 1;
+    private final int camera_exposure = 1000;
     private final double camera_gain = 0.0;
     private final double camera_brightness = 0.0;
 
     private final DoubleArraySubscriber robotPoseSub;
+    private final DoubleSubscriber latencySub;
     private final IntegerSubscriber fpsSub;
     private final DoubleArraySubscriber tvecsSub;
     private final IntegerArraySubscriber idSub;
@@ -39,6 +41,7 @@ public class CustomCamera {
     private final Pose3d cameraPose;
 
     private double[] rawPoseData;
+    private double latency;
     private double[] rawTvecsData;
     private long[] rawIdData;
 
@@ -65,15 +68,13 @@ public class CustomCamera {
                 new double[] {},
                 PubSubOption.keepDuplicates(true),
                 PubSubOption.sendAll(true));
-        
+        latencySub = outputTable.getDoubleTopic("latency").subscribe(0);
         fpsSub = outputTable.getIntegerTopic("fps").subscribe(0);
-
         tvecsSub = outputTable.getDoubleArrayTopic("tvecs")
             .subscribe(
                 new double[] {},
                 PubSubOption.keepDuplicates(true),
                 PubSubOption.sendAll(true));
-
         idSub = outputTable.getIntegerArrayTopic("ids").subscribe(new long[] {});
 
         this.cameraPose = cameraPose;
@@ -85,14 +86,15 @@ public class CustomCamera {
 
     public void updateData() {
         rawPoseData = robotPoseSub.get();
+        latency = latencySub.get();
         rawTvecsData = tvecsSub.get();
         rawIdData = idSub.get();
     }
 
     public boolean hasData() {
-        return rawPoseData.length > 1 && 
-               rawTvecsData.length > 1 && 
-               rawIdData.length > 1;
+        return rawPoseData.length > 0 && 
+               rawTvecsData.length > 0 && 
+               rawIdData.length > 0;
     }
 
     private Pose3d getRobotPose() {
@@ -112,7 +114,7 @@ public class CustomCamera {
     }
 
     private double getLatency() {
-        return Units.millisecondsToSeconds(rawPoseData[6]);
+        return Units.millisecondsToSeconds(latency);
     }
 
     public VisionData getVisionData() {

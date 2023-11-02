@@ -37,11 +37,11 @@ public class Vision extends AbstractVision {
         cameras = new CustomCamera[cameraNames.length];
         cameraPoses2D = new FieldObject2d[cameraNames.length];
 
-        // Field2d field = AbstractOdometry.getInstance().getField();
+        Field2d field = AbstractOdometry.getInstance().getField();
 
         for (int i = 0; i < cameraNames.length; i++) {
             cameras[i] = new CustomCamera(cameraNames[i], cameraLocations[i]);
-            // cameraPoses2D[i] = field.getObject(cameraNames[i]);
+            cameraPoses2D[i] = field.getObject(cameraNames[i]);
         }
 
         outputs = new ArrayList<>();
@@ -58,7 +58,6 @@ public class Vision extends AbstractVision {
         SmartDashboard.putNumber(prefix + "/Pose Z", data.robotPose.getZ());
 
         SmartDashboard.putNumber(prefix + "/Distance to Tag", data.calculateDistanceToTag(data.getPrimaryTag()));
-        // SmartDashboard.putNumber(prefix + "/Angle to Tag", data.getDegreesToTag());
 
         SmartDashboard.putNumber(
                 prefix + "/Pose Rotation",
@@ -75,6 +74,7 @@ public class Vision extends AbstractVision {
             FieldObject2d cameraPose2D = cameraPoses2D[i];
 
             camera.updateData();
+
             if (camera.hasData()) {
                 VisionData data = camera.getVisionData();
                 outputs.add(data);
@@ -86,6 +86,7 @@ public class Vision extends AbstractVision {
                 putAprilTagData("Vision/" + camera.getCameraName(), data);
                 cameraPose2D.setPose(data.robotPose.toPose2d());
             }
+            SmartDashboard.putBoolean("Vision/Has Data", camera.hasData());
         }
     }
 }

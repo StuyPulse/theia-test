@@ -88,8 +88,7 @@ public class SPSwerveModule extends AbstractSwerveModule {
 
         driveEncoder.setPositionConversionFactor(Encoder.Drive.POSITION_CONVERSION);
         driveEncoder.setVelocityConversionFactor(Encoder.Drive.VELOCITY_CONVERSION);
-        driveEncoder.setInverted(false);
-
+        
         Motors.disableStatusFrames(driveMotor, 3, 4, 5, 6);
         DRIVE.configure(driveMotor);
     }

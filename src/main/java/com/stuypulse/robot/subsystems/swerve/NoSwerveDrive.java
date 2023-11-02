@@ -21,25 +21,20 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.kauailabs.navx.frc.AHRS;
-
-public class SwerveDrive extends AbstractSwerveDrive {
+public class NoSwerveDrive extends AbstractSwerveDrive {
 
     private final AbstractSwerveModule[] modules;
 
-    private final AHRS gyro;
     private final SwerveDriveKinematics kinematics;
     private final FieldObject2d[] module2Ds;
 
-    protected SwerveDrive(AbstractSwerveModule... modules) {
+    protected NoSwerveDrive(AbstractSwerveModule... modules) {
         this.modules = modules;
 
-        gyro = new AHRS(SPI.Port.kMXP);
         kinematics = new SwerveDriveKinematics(getModuleOffsets());
         module2Ds = new FieldObject2d[modules.length];
     }
@@ -122,15 +117,15 @@ public class SwerveDrive extends AbstractSwerveDrive {
     }
 
     public Rotation2d getGyroYaw() {
-        return gyro.getRotation2d();
+        return new Rotation2d();
     }
 
     public Rotation2d getGyroPitch() {
-        return Rotation2d.fromDegrees(gyro.getPitch());
+        return new Rotation2d();
     }
 
     public Rotation2d getGyroRoll() {
-        return Rotation2d.fromDegrees(gyro.getRoll());
+        return new Rotation2d();
     }
 
     public SwerveDriveKinematics getKinematics() {
@@ -147,8 +142,12 @@ public class SwerveDrive extends AbstractSwerveDrive {
         setModuleStates(state);
     }
 
+    private int x;
+
     @Override
     public void periodic() {
+        x += 1;
+        SmartDashboard.putString("YOU'RE DONE", "UP" + x);
         AbstractOdometry odometry = AbstractOdometry.getInstance();
         Pose2d pose = odometry.getPose();
         Rotation2d angle = odometry.getRotation();
@@ -163,12 +162,5 @@ public class SwerveDrive extends AbstractSwerveDrive {
         SmartDashboard.putNumber("Swerve/Gyro Angle", getGyroYaw().getDegrees());
         SmartDashboard.putNumber("Swerve/Gyro Pitch", getGyroPitch().getDegrees());
         SmartDashboard.putNumber("Swerve/Gyro Roll", getGyroRoll().getDegrees());
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        var speeds = getKinematics().toChassisSpeeds(getModuleStates());
-        gyro.setAngleAdjustment(
-                gyro.getAngle() - Math.toDegrees(speeds.omegaRadiansPerSecond * Settings.DT));
     }
 }
