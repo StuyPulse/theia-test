@@ -18,11 +18,13 @@ import com.stuypulse.stuylib.streams.angles.filters.ARateLimit;
 
 import com.stuypulse.robot.constants.Motors;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.CANSparkMax;
@@ -38,7 +40,8 @@ public class SPSwerveModule extends AbstractSwerveModule {
     private SwerveModuleState targetState;
 
     private final CANSparkMax turnMotor;
-    private final CANCoder turnCANCoder;
+    // private final CANCoder turnCANCoder;
+    private final DutyCycleEncoder turnCANCoder;
 
     private final CANSparkMax driveMotor;
     private final RelativeEncoder driveEncoder;
@@ -62,7 +65,8 @@ public class SPSwerveModule extends AbstractSwerveModule {
         turnMotor = new CANSparkMax(turnCANID, CANSparkMax.MotorType.kBrushless);
         driveMotor = new CANSparkMax(driveCANID, CANSparkMax.MotorType.kBrushless);
 
-        turnCANCoder = new CANCoder(turnCANCoderID);
+        // turnCANCoder = new CANCoder(turnCANCoderID);
+        turnCANCoder = new DutyCycleEncoder(turnCANCoderID);
         driveEncoder = driveMotor.getEncoder();
 
         configureMotors();
@@ -78,10 +82,10 @@ public class SPSwerveModule extends AbstractSwerveModule {
     }
 
     private void configureMotors() {
-        CANCoderConfiguration turnConfig = new CANCoderConfiguration();
-        turnConfig.magnetOffsetDegrees = 0;
-        turnConfig.sensorDirection = true;
-        turnCANCoder.configAllSettings(turnConfig);
+        // CANCoderConfiguration turnConfig = new CANCoderConfiguration();
+        // turnConfig.magnetOffsetDegrees = 0;
+        // turnConfig.sensorDirection = true;
+        // turnCANCoder.configAllSettings(turnConfig);
 
         Motors.disableStatusFrames(turnMotor, 3, 4, 5, 6);
         TURN.configure(turnMotor);
@@ -116,9 +120,12 @@ public class SPSwerveModule extends AbstractSwerveModule {
         return driveEncoder.getPosition();
     }
 
+    private Rotation2d getAbsolutePosition() {
+        return new Rotation2d(MathUtil.interpolate(-Math.PI, +Math.PI, turnCANCoder.getAbsolutePosition()));
+    }
+
     private Rotation2d getAngle() {
-        return Rotation2d.fromDegrees(turnCANCoder.getPosition() * Encoder.Turn.POSITION_CONVERSION)
-                .minus(wheelRotationOffset);
+        return getAbsolutePosition().minus(wheelRotationOffset);
     }
 
     @Override
@@ -133,7 +140,8 @@ public class SPSwerveModule extends AbstractSwerveModule {
 
     @Override
     public void setTargetState(SwerveModuleState swerveModuleState) {
-        targetState = swerveModuleState;
+        // targetState = swerveModuleState;
+        targetState = SwerveModuleState.optimize(swerveModuleState, getAngle());
     }
 
     @Override
@@ -147,7 +155,7 @@ public class SPSwerveModule extends AbstractSwerveModule {
 
         SmartDashboard.putNumber(
                 "Swerve/" + ID + "/Raw Angle",
-                Units.rotationsToDegrees(turnCANCoder.getPosition()));
+                Units.rotationsToDegrees(turnCANCoder.getAbsolutePosition()));
         SmartDashboard.putNumber("Swerve/" + ID + "/Angle", getAngle().getDegrees());
         SmartDashboard.putNumber(
                 "Swerve/" + ID + "/Angle Error", turnController.getError().toDegrees());

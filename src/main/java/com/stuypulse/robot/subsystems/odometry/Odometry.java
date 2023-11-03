@@ -38,7 +38,7 @@ public class Odometry extends AbstractOdometry {
     private final FieldObject2d odometryPose2D;
     private final FieldObject2d estimatorPose2D;
 
-    Vector<N3> visionStdDevs = VecBuilder.fill(1, 1, Units.degreesToRadians(30));
+    Vector<N3> visionStdDevs = VecBuilder.fill(0.05, .05, Units.degreesToRadians(10));
 
     protected Odometry() {
         AbstractSwerveDrive swerve = AbstractSwerveDrive.getInstance();
@@ -108,10 +108,15 @@ public class Odometry extends AbstractOdometry {
             Fiducial primaryTag = result.getPrimaryTag();
             double distance = result.calculateDistanceToTag(primaryTag);
 
+            // estimator.addVisionMeasurement(
+            //     result.robotPose.toPose2d(), 
+            //     Timer.getFPGATimestamp() - result.latency, 
+            //     getStdDevs(distance));
+
             estimator.addVisionMeasurement(
                 result.robotPose.toPose2d(), 
                 Timer.getFPGATimestamp() - result.latency, 
-                getStdDevs(distance));
+                visionStdDevs);
         }
     }
 

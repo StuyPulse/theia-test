@@ -64,7 +64,7 @@ public abstract class AbstractSwerveDrive extends SubsystemBase {
                                     Ports.Swerve.FrontRight.DRIVE_MOTOR,
                                     FrontRight.MODULE_LOCATION,
                                     FrontRight.WHEEL_ROTATION_OFFSET));
-        } else if (Settings.ROBOT == Robot.TESTBOARD) {
+        } else if (RobotBase.isReal() && Settings.ROBOT == Robot.TESTBOARD) {
             instance = new NoSwerveDrive(
                 new SimModule(FrontRight.ID, FrontRight.MODULE_LOCATION),
                 new SimModule(FrontLeft.ID, FrontLeft.MODULE_LOCATION),
