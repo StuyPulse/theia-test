@@ -149,31 +149,24 @@ public class SPSwerveModule extends AbstractSwerveModule {
 
         turnMotor.setVoltage(
                 turnController.update(
-                        Angle.fromRotation2d(targetState.angle), Angle.fromRotation2d(getAngle())));
+                        Angle.fromRotation2d(targetState.angle), 
+                        Angle.fromRotation2d(getAngle())));
         driveMotor.setVoltage(
                 driveController.update(targetState.speedMetersPerSecond, getVelocity()));
 
-        SmartDashboard.putNumber(
-                "Swerve/" + ID + "/Raw Angle",
-                Units.rotationsToDegrees(turnCANCoder.getAbsolutePosition()));
+        SmartDashboard.putNumber("Swerve/" + ID + "/Raw Angle", Units.rotationsToDegrees(turnCANCoder.getAbsolutePosition()));
         SmartDashboard.putNumber("Swerve/" + ID + "/Angle", getAngle().getDegrees());
-        SmartDashboard.putNumber(
-                "Swerve/" + ID + "/Angle Error", turnController.getError().toDegrees());
+        SmartDashboard.putNumber("Swerve/" + ID + "/Angle Error", turnController.getError().toDegrees());
         SmartDashboard.putNumber("Swerve/" + ID + "/Target Angle", targetState.angle.getDegrees());
 
-        SmartDashboard.putNumber(
-                "Swerve/" + ID + "/Turn Motor Voltage", turnController.getOutput());
-        SmartDashboard.putNumber(
-                "Swerve/" + ID + "/Turn Motor Current", turnMotor.getOutputCurrent());
+        SmartDashboard.putNumber("Swerve/" + ID + "/Turn Motor Voltage", turnController.getOutput());
+        SmartDashboard.putNumber("Swerve/" + ID + "/Turn Motor Current", turnMotor.getOutputCurrent());
 
         SmartDashboard.putNumber("Swerve/" + ID + "/Velocity", getVelocity());
         SmartDashboard.putNumber("Swerve/" + ID + "/Velocity Error", driveController.getError());
-        SmartDashboard.putNumber(
-                "Swerve/" + ID + "/Target Velocity", targetState.speedMetersPerSecond);
+        SmartDashboard.putNumber("Swerve/" + ID + "/Target Velocity", targetState.speedMetersPerSecond);
 
-        SmartDashboard.putNumber(
-                "Swerve/" + ID + "/Drive Motor Voltage", driveController.getOutput());
-        SmartDashboard.putNumber(
-                "Swerve/" + ID + "/Drive Motor Current", driveMotor.getOutputCurrent());
+        SmartDashboard.putNumber("Swerve/" + ID + "/Drive Motor Voltage", driveController.getOutput());
+        SmartDashboard.putNumber("Swerve/" + ID + "/Drive Motor Current", driveMotor.getOutputCurrent());
     }
 }

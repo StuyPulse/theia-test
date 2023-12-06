@@ -108,10 +108,6 @@ public abstract class AbstractSwerveDrive extends SubsystemBase {
 
     public abstract Rotation2d getGyroYaw();
 
-    public abstract Rotation2d getGyroPitch();
-
-    public abstract Rotation2d getGyroRoll();
-
     public abstract SwerveDriveKinematics getKinematics();
 
     public abstract void setXMode();

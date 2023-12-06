@@ -125,14 +125,6 @@ public class SwerveDrive extends AbstractSwerveDrive {
         return gyro.getRotation2d();
     }
 
-    public Rotation2d getGyroPitch() {
-        return Rotation2d.fromDegrees(gyro.getPitch());
-    }
-
-    public Rotation2d getGyroRoll() {
-        return Rotation2d.fromDegrees(gyro.getRoll());
-    }
-
     public SwerveDriveKinematics getKinematics() {
         return kinematics;
     }
@@ -156,13 +148,10 @@ public class SwerveDrive extends AbstractSwerveDrive {
         for (int i = 0; i < modules.length; ++i)
             module2Ds[i].setPose(
                     new Pose2d(
-                            pose.getTranslation()
-                                    .plus(modules[i].getModuleLocation().rotateBy(angle)),
+                            pose.getTranslation().plus(modules[i].getModuleLocation().rotateBy(angle)),
                             modules[i].getState().angle.plus(angle)));
 
         SmartDashboard.putNumber("Swerve/Gyro Angle", getGyroYaw().getDegrees());
-        SmartDashboard.putNumber("Swerve/Gyro Pitch", getGyroPitch().getDegrees());
-        SmartDashboard.putNumber("Swerve/Gyro Roll", getGyroRoll().getDegrees());
     }
 
     @Override
