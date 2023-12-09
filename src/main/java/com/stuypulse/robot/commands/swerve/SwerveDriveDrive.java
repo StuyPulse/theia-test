@@ -15,20 +15,20 @@ import com.stuypulse.stuylib.streams.vectors.filters.VLowPassFilter;
 import com.stuypulse.stuylib.streams.vectors.filters.VRateLimit;
 
 import com.stuypulse.robot.constants.Settings;
-import com.stuypulse.robot.subsystems.swerve.SwerveDrive;
+import com.stuypulse.robot.subsystems.swerve.AbstractSwerveDrive;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class SwerveDriveDrive extends Command {
+public class SwerveDriveDrive extends CommandBase {
 
-    private final SwerveDrive swerve;
+    private final AbstractSwerveDrive swerve;
 
     private VStream velocity;
     private IStream omega;
 
     public SwerveDriveDrive(Gamepad driver) {
-        this.swerve = SwerveDrive.getInstance();
+        this.swerve = AbstractSwerveDrive.getInstance();
 
         velocity =
                 VStream.create(driver::getLeftStick)

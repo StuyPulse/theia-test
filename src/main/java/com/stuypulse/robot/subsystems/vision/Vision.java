@@ -5,7 +5,6 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
-import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.odometry.AbstractOdometry;
 import com.stuypulse.robot.subsystems.odometry.Odometry;
 import com.stuypulse.robot.util.CustomCamera;
@@ -14,7 +13,6 @@ import com.stuypulse.robot.util.VisionData;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
@@ -32,7 +30,7 @@ public class Vision extends AbstractVision {
     protected Vision() {
         String[] cameraNames = new String[] {"default"};
         Pose3d[] cameraLocations = new Pose3d[] {
-            new Pose3d(0, 0, 0, 
+            new Pose3d(Units.inchesToMeters(12), Units.inchesToMeters(5.5), Units.inchesToMeters(7.5), 
             new Rotation3d(0, 0, 0))
         };
 
@@ -60,7 +58,6 @@ public class Vision extends AbstractVision {
         SmartDashboard.putNumber(prefix + "/Pose Z", data.robotPose.getZ());
 
         SmartDashboard.putNumber(prefix + "/Distance to Tag", data.calculateDistanceToTag(data.getPrimaryTag()));
-        // SmartDashboard.putNumber(prefix + "/Angle to Tag", data.getDegreesToTag());
 
         SmartDashboard.putNumber(
                 prefix + "/Pose Rotation",
@@ -77,6 +74,7 @@ public class Vision extends AbstractVision {
             FieldObject2d cameraPose2D = cameraPoses2D[i];
 
             camera.updateData();
+
             if (camera.hasData()) {
                 VisionData data = camera.getVisionData();
                 outputs.add(data);
@@ -88,6 +86,7 @@ public class Vision extends AbstractVision {
                 putAprilTagData("Vision/" + camera.getCameraName(), data);
                 cameraPose2D.setPose(data.robotPose.toPose2d());
             }
+            SmartDashboard.putBoolean("Vision/Has Data", camera.hasData());
         }
     }
 }

@@ -6,7 +6,7 @@
 package com.stuypulse.robot.subsystems.odometry;
 
 import com.stuypulse.robot.constants.Field;
-import com.stuypulse.robot.subsystems.swerve.SwerveDrive;
+import com.stuypulse.robot.subsystems.swerve.AbstractSwerveDrive;
 import com.stuypulse.robot.subsystems.vision.AbstractVision;
 import com.stuypulse.robot.util.Fiducial;
 import com.stuypulse.robot.util.LinearRegression;
@@ -16,6 +16,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -38,10 +39,10 @@ public class Odometry extends AbstractOdometry {
     private final FieldObject2d odometryPose2D;
     private final FieldObject2d estimatorPose2D;
 
-    Vector<N3> visionStdDevs = VecBuilder.fill(1, 1, Units.degreesToRadians(30));
+    Vector<N3> visionStdDevs = VecBuilder.fill(0.05, .05, Units.degreesToRadians(10));
 
     protected Odometry() {
-        SwerveDrive swerve = SwerveDrive.getInstance();
+        AbstractSwerveDrive swerve = AbstractSwerveDrive.getInstance();
 
         this.odometry =
                 new SwerveDriveOdometry(
@@ -84,7 +85,7 @@ public class Odometry extends AbstractOdometry {
 
     @Override
     public void reset(Pose2d pose2d) {
-        SwerveDrive swerve = SwerveDrive.getInstance();
+        AbstractSwerveDrive swerve = AbstractSwerveDrive.getInstance();
 
         odometry.resetPosition(swerve.getGyroYaw(), swerve.getModulePositions(), pose2d);
         estimator.resetPosition(swerve.getGyroYaw(), swerve.getModulePositions(), pose2d);
@@ -109,7 +110,7 @@ public class Odometry extends AbstractOdometry {
             double distance = result.calculateDistanceToTag(primaryTag);
 
             estimator.addVisionMeasurement(
-                result.robotPose.toPose2d(), 
+                result.robotPose.plus(new Transform3d(result.cameraLocation.getTranslation(), result.cameraLocation.getRotation())).toPose2d(), 
                 Timer.getFPGATimestamp() - result.latency, 
                 getStdDevs(distance));
         }
@@ -117,16 +118,19 @@ public class Odometry extends AbstractOdometry {
 
     @Override
     public void periodic() {
-        SwerveDrive swerve = SwerveDrive.getInstance();
+        AbstractSwerveDrive swerve = AbstractSwerveDrive.getInstance();
 
         odometry.update(swerve.getGyroYaw(), swerve.getModulePositions());
         estimator.update(swerve.getGyroYaw(), swerve.getModulePositions());
 
         List<VisionData> output = AbstractVision.getInstance().getOutput();
-        updateWithVision(output);
+        
+        if (!output.isEmpty()) updateWithVision(output);
 
         odometryPose2D.setPose(odometry.getPoseMeters());
         estimatorPose2D.setPose(estimator.getEstimatedPosition());
+
+        SmartDashboard.putBoolean("Vision/Is Empty", output.isEmpty());
 
         SmartDashboard.putNumber("Odometry/Odometry/X", odometry.getPoseMeters().getTranslation().getX());
         SmartDashboard.putNumber("Odometry/Odometry/Y", odometry.getPoseMeters().getTranslation().getY());
