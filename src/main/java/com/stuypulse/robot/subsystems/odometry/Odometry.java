@@ -16,6 +16,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -109,7 +110,7 @@ public class Odometry extends AbstractOdometry {
             double distance = result.calculateDistanceToTag(primaryTag);
 
             estimator.addVisionMeasurement(
-                result.robotPose.toPose2d(), 
+                result.robotPose.plus(new Transform3d(result.cameraLocation.getTranslation(), result.cameraLocation.getRotation())).toPose2d(), 
                 Timer.getFPGATimestamp() - result.latency, 
                 getStdDevs(distance));
         }
